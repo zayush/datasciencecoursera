@@ -82,7 +82,7 @@ geom_histogram(aes(y=..density..), binwidth = 0.2,colour="Black",fill="LightBlue
 geom_density(aes(y=..density..), colour="Red",size=1) + 
 geom_vline(aes(xintercept=mean(mean.dist$means)), colour="DarkBlue",size=1)
 # mean line
-plt + xlab("Mean Distribution")
+plt + xlab("Mean of 40 Samples") + ylab("Density")
 ```
 
 ```{r,echo=TRUE,message=FALSE,fig.width=6, fig.height=3.3}
