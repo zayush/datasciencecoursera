@@ -1,0 +1,94 @@
+---
+title: "Statistical Inference Project - Part 1"
+author: "Aayush Garg"
+date: "28 August 2017"
+output:
+  pdf_document: default
+  word_document: default
+---
+# Introduction
+##Part 1 - Simulation Exercise
+###Overview :
+ Investigate the validity of Central Limit Theorm (CLT) using a simulated model of exponential distribution in R. The exponential distribution can be simulated in R with "rexp(n, lambda)" where lambda is rate parameter and n is no of random variable to be generated. The mean,mu, and standard deviation, sigma, both, in exponential distribution are "1/lambda". 'lambda' and 'n' has been set equal to 0.2 and 40 respectively for all of the simulations, which are 1000, as instructed. To prove CLT validity, mean of 40 generated random variables ,1000 times, will be taken to show :
+ 
+ 1) The sample mean and compare it to the theoretical mean of the distribution.
+ 2) Show how variable the sample is and compare it to the theoretical variance of the distribution.
+ 3) Show that the distribution is approximately normal.
+ 
+ <https://www.coursera.org/learn/statistical-inference/peer/3k8j5/statistical-inference-course-project, colour="Red">
+
+###Setting up the environment
+Loading up the libraries and setting Global Options.
+```{r,echo=T, message=FALSE}
+library(knitr)
+library(ggplot2)
+```
+
+## Setting predefined variables to given value
+
+```{r, echo=T,message=FALSE}
+lambda<-0.2 # rate(limiting value)
+n<-40 # number of random variable generated at a time (sample size)
+nosim<-1000 #Number of simulation
+quan<-qnorm(0.975)#quantile corrosponding to Z-test of 95 % confidence interval
+set.seed(123) #set seed value for reproductivity of data
+```
+## Data Generation and dividing it into a matrix of size 1000x40
+A total of 40x1000 random no has been generated and stored in 1000x40 matrix where 1000 rows shows number of simulation while 40 columns represent 40 generated variabe at a time.
+
+```{r,echo=TRUE,message=FALSE}
+data.gen<- matrix(rexp(nosim*n,rate = lambda),nrow = nosim) # Generating Data
+mean.dist<- as.data.frame(apply(data.gen,1,mean)) #Taking mean of each sample 
+```
+```{r,echo=F}
+colnames(mean.dist)<-"means"
+```
+
+##Mean Comparision
+```{r,echo=FALSE,message=FALSE}
+am<-mean(mean.dist$means) # Actual Mean
+tm<-1/lambda # theortical mean
+```
+```{r,echo=TRUE,message=FALSE}
+c(Actual_Mean=mean(mean.dist$means),Theortical_Mean=1/lambda)
+```
+As seen above, actual mean of the distribution based on the simulations and theoretical mean are quite close.<Note:Value of means =have been stored in "am" for actual mean, "tm" for theortical mean>
+
+## Variance Comparision
+```{r,echo=T,message=FALSE}
+c(Actual_Variance=var(mean.dist$means),Thoretical_Variance=(1/lambda)^2/(n))
+```
+```{r,echo=F,message=FALSE}
+av<-var(mean.dist$means) # Actual Varience
+tv<-(1/lambda)^2/(n) # theortical Varience of the mean
+```
+The above data confirms the proximity of actual and theoretical variance. 
+<: The Variances have been stored in "av" for actual variance , "tv" for theoretical  variance.>
+
+## Comparision of 95% confidence interval
+```{r,echo=T,message=FALSE}
+list(Actual_Interval=am+c(-1,1)*quan*sqrt(av),Theoretical_interval=tm+c(-1,1)*quan*sqrt(tv))
+# here 'am'= actal mean, 'tm'= theoretical mean, 'av'=actual variance, 'tv'=theoretical variance
+```
+These are also approximately equal.
+
+##Approximately Normal Distribution
+As per above comparision in mean, variance and 95 % confidence interval have proved CLT validity enough but for further comfirmity  :
+ i)Shape ii)q quantile cmparision
+
+```{r,echo=TRUE,message=FALSE,fig.width=6, fig.height=4.2}
+plt<-ggplot(mean.dist, aes(x=means), colour="Black") +
+geom_histogram(aes(y=..density..), binwidth = 0.2,colour="Black",fill="LightBlue") +
+geom_density(aes(y=..density..), colour="Red",size=1) + 
+geom_vline(aes(xintercept=mean(mean.dist$means)), colour="DarkBlue",size=1)
+# mean line
+plt + xlab("Mean Distribution")
+```
+
+```{r,echo=TRUE,message=FALSE,fig.width=6, fig.height=3.3}
+qqnorm(mean.dist$means) ; qqline(mean.dist$means)  # qquantile plot 
+```
+
+###***
+From the above graph obervations of mean distribution, q quantile comparision, data look quite bell shaped, which in combination of statistical properties comparision, and proves that mean distribution of Exponential Random Variables for a fixed mean and rate is approximately normal.
+
